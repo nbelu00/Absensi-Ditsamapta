@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Absensi Personel Dit Samapta Polda Sulsel</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f3f5f9;--card:#fff;--tx:#14213d;--mut:#5b6785;--pri:#0b2a5b;--onp:#fff;--gold:#c9a227;--bd:#dbe1ee;--ok:#1a7f4b;--wn:#b7791f;--er:#c0392b;--in:#2b6cb0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1424;--card:#16203a;--tx:#e8edf8;--mut:#98a5c4;--pri:#7fa6e8;--onp:#0d1424;--gold:#e0b93a;--bd:#2a3858;--ok:#4cc38a;--wn:#e3a83f;--er:#ef7b6e;--in:#79b0f0}}
+:root[data-theme="dark"]{--bg:#0d1424;--card:#16203a;--tx:#e8edf8;--mut:#98a5c4;--pri:#7fa6e8;--onp:#0d1424;--gold:#e0b93a;--bd:#2a3858;--ok:#4cc38a;--wn:#e3a83f;--er:#ef7b6e;--in:#79b0f0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:#0b2a5b;color:#fff;padding:14px 16px;border-bottom:4px solid var(--gold)}
+.hd{max-width:760px;margin:auto;display:flex;align-items:center;gap:12px}
+.hd .l{font-size:32px}.hd h1{margin:0;font-size:16px}.hd small{opacity:.8}
+.clock{margin-left:auto;text-align:right}.clock b{font-size:21px;font-variant-numeric:tabular-nums}
+main{max-width:760px;margin:auto;padding:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+h2{margin:0 0 10px;font-size:16px}
+input,select,textarea{width:100%;padding:11px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1;min-width:130px}
+.btn{padding:11px 14px;border:0;border-radius:8px;background:var(--pri);color:var(--onp);font-weight:700;cursor:pointer;font:inherit;font-weight:700}
+.btn.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}.btn.d{background:var(--er);color:#fff}.btn.s{padding:6px 10px;font-size:13px}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:700;border:1px solid currentColor}
+.Hadir{color:var(--ok)}.Izin,.Cuti,.Dinas{color:var(--in)}.Sakit{color:var(--wn)}.Belum{color:var(--er)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;margin:10px 0}
+.opts button{padding:12px;border-radius:10px;border:2px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-weight:700;cursor:pointer}
+.opts button.on{border-color:var(--pri);background:var(--pri);color:var(--onp)}
+.who{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.who .av{width:48px;height:48px;border-radius:50%;background:var(--pri);color:var(--onp);display:grid;place-items:center;font-weight:800;font-size:18px}
+.who .n{flex:1;min-width:150px}.who small,.note{color:var(--mut);font-size:13px}
+.big{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;text-align:center}.big div{border:1px solid var(--bd);border-radius:10px;padding:10px}.big b{font-size:22px;display:block;font-variant-numeric:tabular-nums}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:8px;margin:10px 0}.sum div{border:1px solid var(--bd);border-radius:10px;padding:6px;text-align:center}.sum b{font-size:20px;display:block}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:520px}th,td{padding:8px;border-bottom:1px solid var(--bd);text-align:left;font-size:14px}th{color:var(--mut);font-size:12px;text-transform:uppercase}
+nav{display:flex;gap:6px;margin-bottom:14px}nav button{flex:1;padding:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;font:inherit;font-weight:700;cursor:pointer}nav button.on{background:var(--pri);color:var(--onp);border-color:var(--pri)}
+.hide{display:none!important}.btn:disabled{cursor:default;opacity:1}.err{color:var(--er);font-size:13px;min-height:18px;margin-top:6px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:#14213d;color:#fff;padding:10px 16px;border-radius:99px;z-index:30;display:none}
+</style>
+</head>
+<body>
+<header><div class="hd"><div class="l">🛡️</div><div><h1>ABSENSI PERSONEL</h1><small>Dit Samapta · Polda Sulawesi Selatan</small></div>
+<div class="clock"><b id="jam">--:--:--</b><br><small id="tgl"></small></div></div></header>
+<main>
+<div id="st" class="note" style="margin-bottom:8px"></div>
+<nav id="nav" class="hide"><button data-t="me" class="on">Absen Saya</button><button data-t="adm">Admin</button></nav>
+
+<section id="v-login" class="card">
+<h2>Masuk Personel</h2>
+<p class="note">Masukkan NRP dan PIN pribadi Anda. PIN awal: 6 digit terakhir NRP (segera ganti setelah masuk).</p>
+<div class="row"><input id="l-nrp" placeholder="NRP" inputmode="numeric" autocomplete="username"><input id="l-pin" placeholder="PIN" type="password" inputmode="numeric" autocomplete="current-password"></div>
+<div class="err" id="l-err"></div>
+<button class="btn" id="l-go" style="width:100%;margin-top:6px">Masuk</button>
+</section>
+
+<section id="v-me" class="hide">
+<div class="card"><div class="who"><div class="av" id="av"></div><div class="n"><b id="m-nama"></b><br><small id="m-sub"></small></div><button class="btn g s" id="out">Keluar</button></div>
+<div class="note" id="warn" style="margin-top:8px"></div></div>
+
+<div class="card"><h2>Absensi Hari Ini <span id="m-st"></span></h2>
+<div class="big"><div><small>Masuk</small><b id="m-in">--:--</b></div><div><small>Pulang</small><b id="m-out">--:--</b></div></div>
+<button class="btn" id="go" style="width:100%;padding:16px;font-size:17px;margin-top:10px">✅ Absen Masuk</button>
+<button class="btn" id="plg" style="width:100%;padding:16px;font-size:17px;margin-top:10px">🏠 Absen Pulang</button>
+<div class="note" style="margin-top:8px">📍 Lokasi Anda dicatat saat absen. Izinkan akses lokasi pada browser.</div>
+<details id="dt" style="margin-top:12px"><summary class="note" style="cursor:pointer">Tidak masuk? Izin / Sakit / Dinas Luar / Cuti</summary><div class="opts" id="opts"></div><input id="ket" placeholder="Keterangan (opsional)"><button class="btn g" id="go2" style="width:100%;margin-top:8px">Kirim Keterangan</button><button class="btn g" id="bk" style="width:100%;margin-top:8px">Batalkan Keterangan</button></details></div>
+
+<div class="card"><h2>Riwayat Saya</h2><input type="month" id="bln"><div class="sum" id="sum"></div>
+<div class="tw"><table><thead><tr><th>Tanggal</th><th>Status</th><th>Masuk</th><th>Pulang</th><th>Ket.</th></tr></thead><tbody id="rw"></tbody></table></div></div>
+
+<div class="card"><h2>Ganti PIN</h2><div class="row"><input id="p1" type="password" inputmode="numeric" placeholder="PIN baru (min. 4 angka)"><button class="btn g" id="gp">Simpan PIN</button></div></div>
+</section>
+
+<section id="v-adm" class="hide">
+<div class="card"><h2>Rekap Harian</h2>
+<div class="row"><input type="date" id="tg"><select id="fu"></select><button class="btn g" id="csv">⬇ CSV</button></div>
+<div class="sum" id="asum"></div>
+<div class="tw"><table><thead><tr><th>NRP</th><th>Nama</th><th>Unit</th><th>Status</th><th>Masuk</th><th>Pulang</th><th>Ket.</th><th>Lokasi</th></tr></thead><tbody id="atb"></tbody></table></div></div>
+<div class="card"><h2>Tambah Personel</h2>
+<div class="row"><input id="a-nrp" placeholder="NRP" inputmode="numeric"><input id="a-nama" placeholder="Nama lengkap"></div>
+<div class="row" style="margin-top:8px"><input id="a-pkt" placeholder="Pangkat"><select id="a-unit"><option value="">Pilih Unit / Subdit</option><option>SUBDIT GASUM</option><option>SUBDIT DALMAS</option><option>SUBBAGRENMIN</option><option>K-9</option></select></div>
+<button class="btn" id="add" style="margin-top:8px">Simpan</button>
+<textarea id="bulk" rows="3" style="margin-top:12px" placeholder="Impor banyak, satu baris: NRP, Nama, Pangkat, Unit"></textarea>
+<button class="btn g" id="imp" style="margin-top:8px">Impor</button></div>
+<div class="card"><h2>Ubah Password (PIN) Personel</h2><div class="row"><select id="cp-who"></select><input id="cp-pin" type="password" inputmode="numeric" placeholder="Password baru (min. 4 angka)" autocomplete="new-password"></div><button class="btn" id="cp-go" style="margin-top:8px">Ubah Password</button></div>
+<div class="card"><h2>Daftar Personel <span class="note" id="cnt"></span></h2><div class="tw"><table><thead><tr><th>NRP</th><th>Nama</th><th>Unit</th><th></th></tr></thead><tbody id="tp"></tbody></table></div></div>
+</section>
+</main>
+<div id="toast"></div>
+
+<script>
+var STATUS=["Hadir","Izin","Sakit","Dinas Luar","Cuti"],BL=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"],HR=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+var SI={"Izin":"📝 Izin","Sakit":"🤒 Sakit","Dinas Luar":"🚔 Dinas Luar","Cuti":"🏖️ Cuti"};
+var P={},A={},db=null,isAdm=false,me=null,pick="Hadir",tab="me";
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function pad(n){return n<10?"0"+n:""+n}
+function today(){var d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function hm(d){return pad(d.getHours())+":"+pad(d.getMinutes())}
+function cls(s){return(s||"Belum").split(" ")[0]}
+function toast(t){var e=$("toast");e.textContent=t;e.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(function(){e.style.display="none"},2400)}
+async function hash(nrp,pin){var s=nrp+":"+pin+":samapta-sulsel";
+  try{var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(function(x){return pad(x.toString(16)).slice(-2)}).join("")}
+  catch(e){var h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return"x"+h}}
+function defPin(nrp){return String(nrp).slice(-6)}
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||"{}")}catch(e){return{}}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+function save(col,id,obj){var m=col==="personel"?P:A;m[id]=obj;render();
+  if(db)db.collection(col).doc(id).set(obj).catch(function(){toast("Gagal menyimpan: izin ditolak")});else lsSet("sam2_"+col,m)}
+function del(col,id){var m=col==="personel"?P:A;delete m[id];render();
+  if(db)db.collection(col).doc(id).delete().catch(function(){toast("Gagal menghapus")});else lsSet("sam2_"+col,m)}
+function listen(col){db.collection(col).onSnapshot(function(s){var o={};s.docs.forEach(function(d){if(d.exists){var v=d.data();if(v)o[d.id]=v}});if(col==="personel")P=o;else A=o;render()},function(){})}
+async function init(){
+  P=lsGet("sam2_personel");A=lsGet("sam2_absensi");
+  try{me=sessionStorage.getItem("sam_me")}catch(e){}
+  try{var c=await claude.use("db"),u=await claude.use("user");
+    if(c){db=c;P={};A={};listen("personel");listen("absensi");$("st").textContent="🟢 Terhubung — data tersinkron antar perangkat."}
+    else $("st").textContent="⚠️ Mode lokal: data hanya di perangkat ini.";
+    if(u)isAdm=await u.canEdit()}catch(e){$("st").textContent="⚠️ Mode lokal: data hanya di perangkat ini."}
+  render()}
+
+function rec(n,d){return A[(d||today())+"_"+n]}
+function lk(r){if(!r)return"";function a(l,t){return l?'<a href="https://www.google.com/maps?q='+Number(l.lat)+","+Number(l.lon)+'" target="_blank" rel="noopener">'+t+"</a>":""}return[a(r.lokIn,"📍 Masuk"),a(r.lokOut,"📍 Pulang")].filter(Boolean).join(" ")||'<span class="note">-</span>'}
+function ll(l){return l?Number(l.lat)+","+Number(l.lon):""}
+function show(v){["login","me","adm"].forEach(function(k){$("v-"+k).classList.toggle("hide",k!==v)})}
+function render(){
+  $("nav").classList.toggle("hide",!isAdm);
+  if(isAdm&&tab==="adm")show("adm");else if(me&&P[me])show("me");else{show("login");if(me&&!P[me]&&Object.keys(P).length)me=null}
+  if(isAdm&&!me&&tab==="me"&&$("v-login").classList.contains("hide")===false){}
+  if(me&&P[me])renderMe();
+  if(isAdm)renderAdm()}
+function renderMe(){
+  var p=P[me],r=rec(me),d=today();
+  $("av").textContent=(p.nama||"?").trim().charAt(0).toUpperCase();
+  $("m-nama").textContent=(p.pangkat?p.pangkat+" ":"")+p.nama;
+  $("m-sub").textContent="NRP "+p.nrp+" · "+(p.unit||"-");
+  $("warn").textContent=p.pin===p.pinDef?"⚠️ Anda masih memakai PIN awal. Silakan ganti PIN di bawah.":"";
+  $("m-st").innerHTML='<span class="tag '+cls(r&&r.status)+'">'+(r?esc(r.status):"Belum absen")+"</span>";
+  $("m-in").textContent=r&&r.masuk||"--:--";$("m-out").textContent=r&&r.pulang||"--:--";
+  if(!$("opts").dataset.r||$("opts").dataset.r!==d+me+(r?r.status:"")){pick=r&&r.status!=="Hadir"?r.status:"Izin";$("opts").dataset.r=d+me+(r?r.status:"");$("ket").value=r&&r.ket||""}
+  $("opts").innerHTML=STATUS.slice(1).map(function(s){return'<button data-s="'+s+'" class="'+(s===pick?"on":"")+'">'+s+"</button>"}).join("");
+  var na=!!(r&&r.status!=="Hadir"),hd=!!(r&&r.status==="Hadir"),g=$("go"),q=$("plg");
+  g.disabled=na;q.disabled=na;g.className=na?"btn g":"btn";q.className=na?"btn g":"btn";
+  g.textContent=na?SI[r.status]:"✅ Absen Masuk";q.textContent=na?SI[r.status]:"🏠 Absen Pulang";
+  g.classList.toggle("hide",hd);q.classList.toggle("hide",!(na||(hd&&!r.pulang)));
+  $("dt").classList.toggle("hide",hd);$("bk").classList.toggle("hide",!na);$("go2").textContent=na?"Perbarui Keterangan":"Kirim Keterangan";
+  
+  var b=$("bln").value||d.slice(0,7),c={Hadir:0,Izin:0,Sakit:0,"Dinas Luar":0,Cuti:0},rows="";
+  Object.keys(A).filter(function(k){return A[k].nrp===me&&A[k].date.indexOf(b)===0}).sort().reverse().forEach(function(k){var x=A[k];c[x.status]=(c[x.status]||0)+1;
+    rows+="<tr><td>"+esc(x.date.split("-").reverse().join("/"))+'</td><td><span class="tag '+cls(x.status)+'">'+esc(x.status)+"</span></td><td>"+esc(x.masuk||"-")+"</td><td>"+esc(x.pulang||"-")+"</td><td>"+esc(x.ket||"")+"</td></tr>"});
+  $("rw").innerHTML=rows||'<tr><td colspan="5" class="note">Belum ada catatan bulan ini.</td></tr>';
+  $("sum").innerHTML=STATUS.map(function(k){return'<div><b class="'+cls(k)+'">'+(c[k]||0)+"</b><small>"+k+"</small></div>"}).join("")}
+function sortedP(){return Object.values(P).sort(function(a,b){return a.nama.localeCompare(b.nama)})}
+function renderAdm(){
+  var L=sortedP(),fu=$("fu"),cur=fu.value,us=[];L.forEach(function(p){if(p.unit&&us.indexOf(p.unit)<0)us.push(p.unit)});us.sort();
+  fu.innerHTML='<option value="">Semua unit</option>'+us.map(function(u){return"<option"+(u===cur?" selected":"")+">"+esc(u)+"</option>"}).join("");
+  var d=$("tg").value||today(),LL=cur?L.filter(function(p){return p.unit===cur}):L,c={Hadir:0,Izin:0,Sakit:0,"Dinas Luar":0,Cuti:0,Belum:0},rows="";
+  LL.forEach(function(p){var r=rec(p.nrp,d),s=r?r.status:"Belum";c[s]++;
+    rows+="<tr><td>"+esc(p.nrp)+"</td><td>"+esc(p.pangkat)+" "+esc(p.nama)+"</td><td>"+esc(p.unit)+'</td><td><span class="tag '+cls(s)+'">'+esc(s)+"</span></td><td>"+esc(r&&r.masuk||"-")+"</td><td>"+esc(r&&r.pulang||"-")+"</td><td>"+esc(r&&r.ket||"")+"</td><td>"+lk(r)+"</td></tr>"});
+  $("atb").innerHTML=rows||'<tr><td colspan="8" class="note">Belum ada personel.</td></tr>';
+  $("asum").innerHTML=Object.keys(c).map(function(k){return'<div><b class="'+cls(k)+'">'+c[k]+"</b><small>"+(k==="Belum"?"Belum":k)+"</small></div>"}).join("");
+  $("cnt").textContent="("+L.length+")";
+  var cw=$("cp-who"),cv=cw.value;cw.innerHTML='<option value="">— Pilih personel —</option>'+L.map(function(p){return'<option value="'+esc(p.nrp)+'">'+esc(p.nama)+" · "+esc(p.nrp)+"</option>"}).join("");cw.value=cv;
+  $("tp").innerHTML=L.map(function(p){return"<tr><td>"+esc(p.nrp)+"</td><td>"+esc(p.nama)+"</td><td>"+esc(p.unit)+'</td><td style="white-space:nowrap"><button class="btn d s" data-x="'+esc(p.nrp)+'">Hapus</button></td></tr>'}).join("")||'<tr><td colspan="4" class="note">Belum ada personel.</td></tr>'}
+async function newP(nrp,nama,pkt,unit){var h=await hash(nrp,defPin(nrp));save("personel",nrp,{nrp:nrp,nama:nama,pangkat:(pkt||"").toUpperCase(),unit:unit||"",pin:h,pinDef:h})}
+
+document.addEventListener("click",async function(e){
+  var t=e.target,b=t.closest("[data-t]");
+  if(b){tab=b.dataset.t;document.querySelectorAll("#nav button").forEach(function(x){x.classList.toggle("on",x===b)});render();return}
+  if(t.dataset.s){pick=t.dataset.s;renderMe();return}
+  if(t.dataset.x&&confirm("Hapus personel ini?"))del("personel",t.dataset.x);
+});
+$("l-go").onclick=async function(){
+  var n=$("l-nrp").value.trim(),p=P[n];
+  if(!p||p.pin!==await hash(n,$("l-pin").value.trim())){$("l-err").textContent="NRP atau PIN salah.";return}
+  $("l-err").textContent="";$("l-pin").value="";me=n;tab="me";try{sessionStorage.setItem("sam_me",n)}catch(e){}render()};
+$("out").onclick=function(){me=null;try{sessionStorage.removeItem("sam_me")}catch(e){}render()};
+function getLoc(){return new Promise(function(ok){if(!navigator.geolocation){ok(null);return}navigator.geolocation.getCurrentPosition(function(p){ok({lat:+p.coords.latitude.toFixed(6),lon:+p.coords.longitude.toFixed(6),acc:Math.round(p.coords.accuracy)})},function(){ok(null)},{enableHighAccuracy:true,timeout:10000,maximumAge:0})})}
+var busy=false;
+async function absen(st){if(busy)return;busy=true;toast("Mengambil lokasi…");var l=await getLoc(),d=today(),o=rec(me);
+  save("absensi",d+"_"+me,{date:d,nrp:me,status:st,masuk:o&&o.status===st?o.masuk:hm(new Date()),pulang:o&&o.pulang||"",ket:st==="Hadir"?(o&&o.ket||""):$("ket").value.trim(),lokIn:l||(o&&o.lokIn)||null,lokOut:(o&&o.lokOut)||null});
+  busy=false;toast("Absen tercatat: "+st+(l?" 📍":" (lokasi tidak tersedia)"))}
+$("bk").onclick=function(){del("absensi",today()+"_"+me);toast("Keterangan dibatalkan")};
+$("go").onclick=function(){absen("Hadir")};$("go2").onclick=function(){absen(pick)};
+$("plg").onclick=async function(){if(busy)return;busy=true;toast("Mengambil lokasi…");var l=await getLoc(),d=today(),o=rec(me);save("absensi",d+"_"+me,Object.assign({},o,{pulang:hm(new Date()),lokOut:l||null}));busy=false;toast("Absen pulang tercatat"+(l?" 📍":" (lokasi tidak tersedia)"))};
+$("gp").onclick=async function(){var v=$("p1").value.trim();if(!/^\d{4,}$/.test(v)){toast("PIN minimal 4 angka");return}
+  save("personel",me,Object.assign({},P[me],{pin:await hash(me,v)}));$("p1").value="";toast("PIN diganti")};
+$("cp-go").onclick=async function(){var n=$("cp-who").value,v=$("cp-pin").value.trim();if(!n){toast("Pilih personel dulu");return}if(!/^\d{4,}$/.test(v)){toast("Password minimal 4 angka");return}save("personel",n,Object.assign({},P[n],{pin:await hash(n,v)}));$("cp-pin").value="";toast("Password "+P[n].nama+" diubah")};
+$("add").onclick=async function(){var n=$("a-nrp").value.trim(),m=$("a-nama").value.trim();if(!n||!m){toast("NRP dan nama wajib");return}
+  await newP(n,m,$("a-pkt").value.trim(),$("a-unit").value.trim());["a-nrp","a-nama","a-pkt"].forEach(function(i){$(i).value=""});toast("Personel disimpan (PIN awal: "+defPin(n)+")")};
+$("imp").onclick=async function(){var c=0,ls=$("bulk").value.split("\n");
+  for(var i=0;i<ls.length;i++){var x=ls[i].split(",").map(function(s){return s.trim()});if(x[0]&&x[1]){await newP(x[0],x[1],x[2],x[3]);c++}}
+  $("bulk").value="";toast(c+" personel diimpor")};
+$("csv").onclick=async function(){var d=$("tg").value||today(),cur=$("fu").value,out=[["NRP","Nama","Pangkat","Unit","Status","Masuk","Pulang","Keterangan","Lokasi Masuk","Lokasi Pulang"]];
+  sortedP().filter(function(p){return!cur||p.unit===cur}).forEach(function(p){var r=rec(p.nrp,d)||{};out.push([p.nrp,p.nama,p.pangkat,p.unit,r.status||"Belum absen",r.masuk||"",r.pulang||"",r.ket||"",ll(r.lokIn),ll(r.lokOut)])});
+  var data="\ufeff"+out.map(function(r){return r.map(function(v){v=String(v);return/[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(",")}).join("\n");
+  try{var dl=await claude.use("downloads");if(dl){await dl.save({filename:"absensi-samapta-"+d+".csv",data:data});return}}catch(e){}toast("Ekspor tidak tersedia")};
+$("bln").onchange=renderMe;$("tg").onchange=renderAdm;$("fu").onchange=renderAdm;
+["l-nrp","l-pin"].forEach(function(i){$(i).addEventListener("keydown",function(e){if(e.key==="Enter")$("l-go").click()})});
+function tick(){var d=new Date();$("jam").textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());$("tgl").textContent=HR[d.getDay()]+", "+d.getDate()+" "+BL[d.getMonth()]+" "+d.getFullYear()}
+tick();setInterval(tick,1000);$("tg").value=today();$("bln").value=today().slice(0,7);init();
+</script>
+</body>
+</html>
