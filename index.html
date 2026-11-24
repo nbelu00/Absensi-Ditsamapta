@@ -338,7 +338,7 @@
       <div class="hd">
         <div class="l">🛡️</div>
         <div>
-          <h1>ABSEN PERSONEL</h1>
+          <h1>ABSENSI PERSONEL</h1>
           <small>Dit Samapta · Polda Sulawesi Selatan</small>
         </div>
         <div class="clock">
@@ -355,24 +355,13 @@
 
       <section id="v-login" class="card">
         <h2>Masuk Personel</h2>
-        <p class="note">
-          Masukkan NRP dan PIN pribadi Anda. PIN awal: 6 digit terakhir NRP
-          (segera ganti setelah masuk).
-        </p>
-        <div class="row">
-          <input
-            id="l-nrp"
-            placeholder="NRP"
-            inputmode="numeric"
-            autocomplete="username"
-          /><input
-            id="l-pin"
-            placeholder="PIN"
-            type="password"
-            inputmode="numeric"
-            autocomplete="current-password"
-          />
-        </div>
+        <p class="note">Masukkan NRP Anda untuk masuk.</p>
+        <input
+          id="l-nrp"
+          placeholder="NRP"
+          inputmode="numeric"
+          autocomplete="username"
+        />
         <div class="err" id="l-err"></div>
         <button class="btn" id="l-go" style="width: 100%; margin-top: 6px">
           Masuk
@@ -461,18 +450,6 @@
             </table>
           </div>
         </div>
-
-        <div class="card">
-          <h2>Ganti PIN</h2>
-          <div class="row">
-            <input
-              id="p1"
-              type="password"
-              inputmode="numeric"
-              placeholder="PIN baru (min. 4 angka)"
-            /><button class="btn g" id="gp">Simpan PIN</button>
-          </div>
-        </div>
       </section>
 
       <section id="v-adm" class="hide">
@@ -526,22 +503,6 @@
             placeholder="Impor banyak, satu baris: NRP, Nama, Pangkat, Unit"
           ></textarea>
           <button class="btn g" id="imp" style="margin-top: 8px">Impor</button>
-        </div>
-        <div class="card">
-          <h2>Ubah Password (PIN) Personel</h2>
-          <div class="row">
-            <select id="cp-who"></select
-            ><input
-              id="cp-pin"
-              type="password"
-              inputmode="numeric"
-              placeholder="Password baru (min. 4 angka)"
-              autocomplete="new-password"
-            />
-          </div>
-          <button class="btn" id="cp-go" style="margin-top: 8px">
-            Ubah Password
-          </button>
         </div>
         <div class="card">
           <h2>Daftar Personel <span class="note" id="cnt"></span></h2>
@@ -790,10 +751,7 @@
         $("av").textContent = (p.nama || "?").trim().charAt(0).toUpperCase();
         $("m-nama").textContent = (p.pangkat ? p.pangkat + " " : "") + p.nama;
         $("m-sub").textContent = "NRP " + p.nrp + " · " + (p.unit || "-");
-        $("warn").textContent =
-          p.pin === p.pinDef
-            ? "⚠️ Anda masih memakai PIN awal. Silakan ganti PIN di bawah."
-            : "";
+
         $("m-st").innerHTML =
           '<span class="tag ' +
           cls(r && r.status) +
@@ -967,22 +925,6 @@
           })
           .join("");
         $("cnt").textContent = "(" + L.length + ")";
-        var cw = $("cp-who"),
-          cv = cw.value;
-        cw.innerHTML =
-          '<option value="">— Pilih personel —</option>' +
-          L.map(function (p) {
-            return (
-              '<option value="' +
-              esc(p.nrp) +
-              '">' +
-              esc(p.nama) +
-              " · " +
-              esc(p.nrp) +
-              "</option>"
-            );
-          }).join("");
-        cw.value = cv;
         $("tp").innerHTML =
           L.map(function (p) {
             return (
@@ -1033,12 +975,11 @@
       $("l-go").onclick = async function () {
         var n = $("l-nrp").value.trim(),
           p = P[n];
-        if (!p || p.pin !== (await hash(n, $("l-pin").value.trim()))) {
-          $("l-err").textContent = "NRP atau PIN salah.";
+        if (!p) {
+          $("l-err").textContent = "NRP tidak terdaftar. Hubungi admin.";
           return;
         }
         $("l-err").textContent = "";
-        $("l-pin").value = "";
         me = n;
         tab = "me";
         try {
@@ -1124,35 +1065,7 @@
           "Absen pulang tercatat" + (l ? " 📍" : " (lokasi tidak tersedia)"),
         );
       };
-      $("gp").onclick = async function () {
-        var v = $("p1").value.trim();
-        if (!/^\d{4,}$/.test(v)) {
-          toast("PIN minimal 4 angka");
-          return;
-        }
-        save(
-          "personel",
-          me,
-          Object.assign({}, P[me], { pin: await hash(me, v) }),
-        );
-        $("p1").value = "";
-        toast("PIN diganti");
-      };
-      $("cp-go").onclick = async function () {
-        var n = $("cp-who").value,
-          v = $("cp-pin").value.trim();
-        if (!n) {
-          toast("Pilih personel dulu");
-          return;
-        }
-        if (!/^\d{4,}$/.test(v)) {
-          toast("Password minimal 4 angka");
-          return;
-        }
-        save("personel", n, Object.assign({}, P[n], { pin: await hash(n, v) }));
-        $("cp-pin").value = "";
-        toast("Password " + P[n].nama + " diubah");
-      };
+
       $("add").onclick = async function () {
         var n = $("a-nrp").value.trim(),
           m = $("a-nama").value.trim();
@@ -1164,7 +1077,7 @@
         ["a-nrp", "a-nama", "a-pkt"].forEach(function (i) {
           $(i).value = "";
         });
-        toast("Personel disimpan (PIN awal: " + defPin(n) + ")");
+        toast("Personel disimpan");
       };
       $("imp").onclick = async function () {
         var c = 0,
@@ -1246,7 +1159,7 @@
       $("bln").onchange = renderMe;
       $("tg").onchange = renderAdm;
       $("fu").onchange = renderAdm;
-      ["l-nrp", "l-pin"].forEach(function (i) {
+      ["l-nrp"].forEach(function (i) {
         $(i).addEventListener("keydown", function (e) {
           if (e.key === "Enter") $("l-go").click();
         });
