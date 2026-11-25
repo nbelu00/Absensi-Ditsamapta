@@ -322,22 +322,99 @@ $("add").onclick = async () => {
   toast("Personel disimpan");
   loadAdm();
 };
+/* ---------- Impor Excel ---------- */
+let xlRows = [];
+const HDR = {
+  nrp: "nrp",
+  nama: "nama",
+  pangkat: "pangkat",
+  unit: "unit",
+  subdit: "unit",
+  "unit / subdit": "unit",
+  satuan: "unit",
+};
+const normUnit = (u) => {
+  const x = String(u || "").trim().toUpperCase();
+  return UNITS.find((k) => k === x) || x;
+};
+$("tpl").onclick = () => {
+  const ws = XLSX.utils.aoa_to_sheet([
+    ["NRP", "Nama", "Pangkat", "Unit"],
+    ["00000001", "CONTOH NAMA", "BRIPKA", "SUBDIT GASUM"],
+    ["00000002", "CONTOH NAMA DUA", "BRIPTU", "K-9"],
+  ]);
+  ws["!cols"] = [{ wch: 14 }, { wch: 32 }, { wch: 14 }, { wch: 18 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Personel");
+  XLSX.writeFile(wb, "template-personel.xlsx");
+};
+$("xl").onchange = async (e) => {
+  const f = e.target.files[0];
+  xlRows = [];
+  $("imp").disabled = true;
+  $("xl-info").textContent = "";
+  if (!f) return;
+  try {
+    const wb = XLSX.read(await f.arrayBuffer(), { type: "array" });
+    const data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {
+      header: 1,
+      raw: false,
+      defval: "",
+    });
+    if (!data.length) throw new Error("File kosong");
+    const head = data[0].map((h) => HDR[String(h).trim().toLowerCase()]);
+    const hasHead = head.includes("nrp") && head.includes("nama");
+    const idx = (k) =>
+      hasHead ? head.indexOf(k) : ["nrp", "nama", "pangkat", "unit"].indexOf(k);
+    const map = new Map();
+    let skipped = 0;
+    const unknown = new Set();
+    let short = 0;
+    (hasHead ? data.slice(1) : data).forEach((r) => {
+      const g = (k) => (idx(k) < 0 ? "" : String(r[idx(k)] ?? "").trim());
+      const nrp = g("nrp"),
+        nama = g("nama");
+      if (!nrp || !nama) {
+        if (r.some((c) => String(c).trim())) skipped++;
+        return;
+      }
+      const unit = normUnit(g("unit"));
+      if (unit && !UNITS.includes(unit)) unknown.add(unit);
+      if (/^\d+$/.test(nrp) && nrp.length < 8) short++;
+      map.set(nrp, { nrp, nama, pangkat: g("pangkat").toUpperCase(), unit });
+    });
+    xlRows = [...map.values()];
+    let info = xlRows.length + " personel siap diimpor.";
+    if (skipped) info += " " + skipped + " baris dilewati (NRP atau nama kosong).";
+    if (unknown.size)
+      info += " Unit tidak dikenal: " + [...unknown].join(", ") + ".";
+    if (short)
+      info +=
+        " " + short + " NRP kurang dari 8 digit. Pastikan angka 0 di depan tidak hilang (format kolom NRP sebagai Teks).";
+    $("xl-info").textContent = info;
+    $("imp").disabled = !xlRows.length;
+  } catch (err) {
+    $("xl-info").textContent = "Gagal membaca file: " + err.message;
+  }
+};
 $("imp").onclick = async () => {
-  const rows = $("bulk")
-    .value.split("\n")
-    .map((l) => l.split(",").map((s) => s.trim()))
-    .filter((x) => x[0] && x[1])
-    .map((x) => ({
-      nrp: x[0],
-      nama: x[1],
-      pangkat: (x[2] || "").toUpperCase(),
-      unit: x[3] || "",
-    }));
-  if (!rows.length) return toast("Tidak ada baris valid");
-  const { error } = await sb.from("personel").upsert(rows);
-  if (error) return toast("Gagal: " + error.message);
-  $("bulk").value = "";
-  toast(rows.length + " personel diimpor");
+  if (!xlRows.length) return;
+  $("imp").disabled = true;
+  let n = 0;
+  for (let i = 0; i < xlRows.length; i += 500) {
+    const part = xlRows.slice(i, i + 500);
+    const { error } = await sb.from("personel").upsert(part);
+    if (error) {
+      toast("Gagal: " + error.message);
+      $("imp").disabled = false;
+      return;
+    }
+    n += part.length;
+  }
+  xlRows = [];
+  $("xl").value = "";
+  $("xl-info").textContent = "";
+  toast(n + " personel diimpor");
   loadAdm();
 };
 $("csv").onclick = () => {

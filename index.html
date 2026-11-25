@@ -171,13 +171,23 @@
             ></select>
           </div>
           <button class="btn" id="add" style="margin-top: 8px">Simpan</button>
-          <textarea
-            id="bulk"
-            rows="3"
-            style="margin-top: 12px"
-            placeholder="Impor banyak, satu baris: NRP, Nama, Pangkat, Unit"
-          ></textarea
-          ><button class="btn g" id="imp" style="margin-top: 8px">Impor</button>
+          <div class="sep">
+            <h3>Impor dari Excel</h3>
+            <p class="note">
+              Unggah file .xlsx, .xls, atau .csv dengan kolom:
+              <b>NRP, Nama, Pangkat, Unit</b>. Baris pertama adalah judul
+              kolom. Format kolom NRP sebagai <b>Teks</b> agar angka 0 di depan
+              tidak hilang.
+            </p>
+            <div class="row">
+              <button class="btn g" id="tpl">⬇ Unduh Template Excel</button>
+              <input type="file" id="xl" accept=".xlsx,.xls,.csv" />
+            </div>
+            <div class="note" id="xl-info" style="margin-top: 8px"></div>
+            <button class="btn g" id="imp" style="margin-top: 8px" disabled>
+              Impor
+            </button>
+          </div>
         </div>
         <div class="card">
           <h2>Daftar Personel <span class="note" id="cnt"></span></h2>
@@ -200,6 +210,7 @@
     <div id="toast"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
