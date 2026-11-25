@@ -1,6 +1,6 @@
 /* ===== CONFIG: isi dari Supabase > Project Settings > API ===== */
-const SUPABASE_URL = "ISI_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "ISI_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://gwpawiaanyxscffrrpbu.supabase.co/rest/v1/";
+const SUPABASE_ANON_KEY = "sb_publishable_lc11_LFVJhqyJEHTw9qrlA_-oVe8n_Y";
 const UNITS = ["SUBDIT GASUM", "SUBDIT DALMAS", "SUBBAGRENMIN", "K-9"];
 /* ================================================================ */
 const STAT = ["Hadir", "Izin", "Sakit", "Dinas Luar", "Cuti"],
