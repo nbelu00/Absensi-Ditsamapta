@@ -1,52 +1,205 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Absensi Personel Dit Samapta Polda Sulsel</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-<header><div class="hd"><div class="l">🛡️</div><div><h1>ABSENSI PERSONEL</h1><small>Dit Samapta · Polda Sulawesi Selatan</small></div>
-<div class="clock"><b id="jam">--:--:--</b><br><small id="tgl"></small></div></div></header>
-<main>
-<div id="setup" class="card hide"><h2>⚠️ Supabase belum dikonfigurasi</h2><p class="note">Buka <b>index.html</b>, isi <b>SUPABASE_URL</b> dan <b>SUPABASE_ANON_KEY</b> di bagian CONFIG paling atas skrip, lalu deploy ulang.</p></div>
-<nav><button data-t="me" class="on">Absen Saya</button><button data-t="adm">Admin</button></nav>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Absensi Personel Dit Samapta Polda Sulsel</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="hd">
+        <div class="l">🛡️</div>
+        <div>
+          <h1>ABSENSI PERSONEL</h1>
+          <small>Dit Samapta · Polda Sulawesi Selatan</small>
+        </div>
+        <div class="clock">
+          <b id="jam">--:--:--</b><br /><small id="tgl"></small>
+        </div>
+      </div>
+    </header>
+    <main>
+      <div id="setup" class="card hide">
+        <h2>⚠️ Supabase belum dikonfigurasi</h2>
+        <p class="note">
+          Buka <b>index.html</b>, isi <b>SUPABASE_URL</b> dan
+          <b>SUPABASE_ANON_KEY</b> di bagian CONFIG paling atas skrip, lalu
+          deploy ulang.
+        </p>
+      </div>
+      <nav>
+        <button data-t="me" class="on">Absen Saya</button
+        ><button data-t="adm">Admin</button>
+      </nav>
 
-<section id="v-login" class="card"><h2>Masuk Personel</h2><p class="note">Masukkan NRP Anda untuk masuk.</p>
-<input id="l-nrp" placeholder="NRP" inputmode="numeric"><div class="err" id="l-err"></div><button class="btn" id="l-go" style="width:100%;margin-top:6px">Masuk</button></section>
+      <section id="v-login" class="card">
+        <h2>Masuk Personel</h2>
+        <p class="note">Masukkan NRP Anda untuk masuk.</p>
+        <input id="l-nrp" placeholder="NRP" inputmode="numeric" />
+        <div class="err" id="l-err"></div>
+        <button class="btn" id="l-go" style="width: 100%; margin-top: 6px">
+          Masuk
+        </button>
+      </section>
 
-<section id="v-me" class="hide">
-<div class="card"><div class="who"><div class="av" id="av"></div><div class="n"><b id="m-nama"></b><br><small id="m-sub"></small></div><button class="btn g s" id="out">Keluar</button></div></div>
-<div class="card"><h2>Absensi Hari Ini <span id="m-st"></span></h2>
-<div class="big"><div><small>Masuk</small><b id="m-in">--:--</b></div><div><small>Pulang</small><b id="m-out">--:--</b></div></div>
-<button class="btn w" id="go">✅ Absen Masuk</button><button class="btn w" id="plg">🏠 Absen Pulang</button>
-<div class="note" style="margin-top:8px">📍 Lokasi Anda dicatat saat absen. Izinkan akses lokasi pada browser.</div>
-<details id="dt" style="margin-top:12px"><summary class="note" style="cursor:pointer">Tidak masuk? Izin / Sakit / Dinas Luar / Cuti</summary><div class="opts" id="opts"></div><input id="ket" placeholder="Keterangan (opsional)"><button class="btn g" id="go2" style="width:100%;margin-top:8px">Kirim Keterangan</button><button class="btn g" id="bk" style="width:100%;margin-top:8px">Batalkan Keterangan</button></details></div>
-<div class="card"><h2>Riwayat Saya</h2><input type="month" id="bln"><div class="sum" id="sum"></div>
-<div class="tw"><table><thead><tr><th>Tanggal</th><th>Status</th><th>Masuk</th><th>Pulang</th><th>Ket.</th></tr></thead><tbody id="rw"></tbody></table></div></div>
-</section>
+      <section id="v-me" class="hide">
+        <div class="card">
+          <div class="who">
+            <div class="av" id="av"></div>
+            <div class="n">
+              <b id="m-nama"></b><br /><small id="m-sub"></small>
+            </div>
+            <button class="btn g s" id="out">Keluar</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Absensi Hari Ini <span id="m-st"></span></h2>
+          <div class="big">
+            <div><small>Masuk</small><b id="m-in">--:--</b></div>
+            <div><small>Pulang</small><b id="m-out">--:--</b></div>
+          </div>
+          <button class="btn w" id="go">✅ Absen Masuk</button
+          ><button class="btn w" id="plg">🏠 Absen Pulang</button>
+          <div class="note" style="margin-top: 8px">
+            📍 Lokasi Anda dicatat saat absen. Izinkan akses lokasi pada
+            browser.
+          </div>
+          <details id="dt" style="margin-top: 12px">
+            <summary class="note" style="cursor: pointer">
+              Tidak masuk? Izin / Sakit / Dinas Luar / Cuti
+            </summary>
+            <div class="opts" id="opts"></div>
+            <input id="ket" placeholder="Keterangan (opsional)" /><button
+              class="btn g"
+              id="go2"
+              style="width: 100%; margin-top: 8px"
+            >
+              Kirim Keterangan</button
+            ><button class="btn g" id="bk" style="width: 100%; margin-top: 8px">
+              Batalkan Keterangan
+            </button>
+          </details>
+        </div>
+        <div class="card">
+          <h2>Riwayat Saya</h2>
+          <input type="month" id="bln" />
+          <div class="sum" id="sum"></div>
+          <div class="tw">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tanggal</th>
+                  <th>Status</th>
+                  <th>Masuk</th>
+                  <th>Pulang</th>
+                  <th>Ket.</th>
+                </tr>
+              </thead>
+              <tbody id="rw"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
-<section id="v-alogin" class="card hide"><h2>Masuk Admin</h2><p class="note">Gunakan email dan password akun admin yang dibuat di Supabase (Authentication → Users).</p>
-<div class="row"><input id="ad-em" type="email" placeholder="Email" autocomplete="username"><input id="ad-pw" type="password" placeholder="Password" autocomplete="current-password"></div>
-<div class="err" id="ad-err"></div><button class="btn" id="ad-go" style="width:100%;margin-top:6px">Masuk Admin</button></section>
+      <section id="v-alogin" class="card hide">
+        <h2>Masuk Admin</h2>
+        <p class="note">
+          Gunakan email dan password akun admin yang dibuat di Supabase
+          (Authentication → Users).
+        </p>
+        <div class="row">
+          <input
+            id="ad-em"
+            type="email"
+            placeholder="Email"
+            autocomplete="username"
+          /><input
+            id="ad-pw"
+            type="password"
+            placeholder="Password"
+            autocomplete="current-password"
+          />
+        </div>
+        <div class="err" id="ad-err"></div>
+        <button class="btn" id="ad-go" style="width: 100%; margin-top: 6px">
+          Masuk Admin
+        </button>
+      </section>
 
-<section id="v-adm" class="hide">
-<div class="card"><div class="row" style="align-items:center"><h2 style="margin:0;flex:2">Rekap Harian</h2><button class="btn g s" id="rf">⟳ Muat ulang</button><button class="btn g s" id="ao">Keluar Admin</button></div>
-<div class="row" style="margin-top:10px"><input type="date" id="tg"><select id="fu"></select><button class="btn g" id="csv">⬇ CSV</button></div>
-<div class="sum" id="asum"></div>
-<div class="tw"><table><thead><tr><th>NRP</th><th>Nama</th><th>Unit</th><th>Status</th><th>Masuk</th><th>Pulang</th><th>Ket.</th><th>Lokasi</th></tr></thead><tbody id="atb"></tbody></table></div></div>
-<div class="card"><h2>Tambah Personel</h2>
-<div class="row"><input id="a-nrp" placeholder="NRP" inputmode="numeric"><input id="a-nama" placeholder="Nama lengkap"></div>
-<div class="row" style="margin-top:8px"><input id="a-pkt" placeholder="Pangkat"><select id="a-unit"></select></div>
-<button class="btn" id="add" style="margin-top:8px">Simpan</button>
-<textarea id="bulk" rows="3" style="margin-top:12px" placeholder="Impor banyak, satu baris: NRP, Nama, Pangkat, Unit"></textarea><button class="btn g" id="imp" style="margin-top:8px">Impor</button></div>
-<div class="card"><h2>Daftar Personel <span class="note" id="cnt"></span></h2><div class="tw"><table><thead><tr><th>NRP</th><th>Nama</th><th>Unit</th><th></th></tr></thead><tbody id="tp"></tbody></table></div></div>
-</section>
-</main>
-<div id="toast"></div>
+      <section id="v-adm" class="hide">
+        <div class="card">
+          <div class="row" style="align-items: center">
+            <h2 style="margin: 0; flex: 2">Rekap Harian</h2>
+            <button class="btn g s" id="rf">⟳ Muat ulang</button
+            ><button class="btn g s" id="ao">Keluar Admin</button>
+          </div>
+          <div class="row" style="margin-top: 10px">
+            <input type="date" id="tg" /><select id="fu"></select
+            ><button class="btn g" id="csv">⬇ CSV</button>
+          </div>
+          <div class="sum" id="asum"></div>
+          <div class="tw">
+            <table>
+              <thead>
+                <tr>
+                  <th>NRP</th>
+                  <th>Nama</th>
+                  <th>Unit</th>
+                  <th>Status</th>
+                  <th>Masuk</th>
+                  <th>Pulang</th>
+                  <th>Ket.</th>
+                  <th>Lokasi</th>
+                </tr>
+              </thead>
+              <tbody id="atb"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Tambah Personel</h2>
+          <div class="row">
+            <input id="a-nrp" placeholder="NRP" inputmode="numeric" /><input
+              id="a-nama"
+              placeholder="Nama lengkap"
+            />
+          </div>
+          <div class="row" style="margin-top: 8px">
+            <input id="a-pkt" placeholder="Pangkat" /><select
+              id="a-unit"
+            ></select>
+          </div>
+          <button class="btn" id="add" style="margin-top: 8px">Simpan</button>
+          <textarea
+            id="bulk"
+            rows="3"
+            style="margin-top: 12px"
+            placeholder="Impor banyak, satu baris: NRP, Nama, Pangkat, Unit"
+          ></textarea
+          ><button class="btn g" id="imp" style="margin-top: 8px">Impor</button>
+        </div>
+        <div class="card">
+          <h2>Daftar Personel <span class="note" id="cnt"></span></h2>
+          <div class="tw">
+            <table>
+              <thead>
+                <tr>
+                  <th>NRP</th>
+                  <th>Nama</th>
+                  <th>Unit</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tp"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="app.js"></script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>
