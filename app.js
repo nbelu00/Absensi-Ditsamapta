@@ -1,5 +1,5 @@
 /* ===== CONFIG: isi dari Supabase > Project Settings > API ===== */
-const SUPABASE_URL = "https://gwpawiaanyxscffrrpbu.supabase.co/rest/v1/";
+const SUPABASE_URL = "https://gwpawiaanyxscffrrpbu.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_lc11_LFVJhqyJEHTw9qrlA_-oVe8n_Y";
 const UNITS = ["SUBDIT GASUM", "SUBDIT DALMAS", "SUBBAGRENMIN", "K-9"];
 /* ================================================================ */
