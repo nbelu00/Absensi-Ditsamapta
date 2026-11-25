@@ -9,7 +9,9 @@
   <body>
     <header>
       <div class="hd">
-        <div class="l">🛡️</div>
+        <div class="l">
+          <img src="Logo-Samapta.png" alt="Logo Korps Sabhara" />
+        </div>
         <div>
           <h1>ABSENSI PERSONEL</h1>
           <small>Dit Samapta · Polda Sulawesi Selatan</small>
@@ -61,6 +63,7 @@
           </div>
           <button class="btn w" id="go">✅ Absen Masuk</button
           ><button class="btn w" id="plg">🏠 Absen Pulang</button>
+          <div class="note" id="m-lock"></div>
           <div class="note" style="margin-top: 8px">
             📍 Lokasi Anda dicatat saat absen. Izinkan akses lokasi pada
             browser.
@@ -70,7 +73,17 @@
               Tidak masuk? Izin / Sakit / Dinas Luar / Cuti
             </summary>
             <div class="opts" id="opts"></div>
-            <input id="ket" placeholder="Keterangan (opsional)" /><button
+            <input id="ket" placeholder="Keterangan (opsional)" />
+            <div id="dk" class="hide">
+              <label class="note" for="dok" id="dok-lbl"></label>
+              <input
+                type="file"
+                id="dok"
+                accept=".pdf,.jpg,.jpeg,.png,.webp,image/*,application/pdf"
+              />
+              <div class="note" id="dok-cur"></div>
+            </div>
+            <button
               class="btn g"
               id="go2"
               style="width: 100%; margin-top: 8px"
@@ -138,6 +151,23 @@
             <input type="date" id="tg" /><select id="fu"></select
             ><button class="btn g" id="csv">⬇ CSV</button>
           </div>
+          <div class="row" style="margin-top: 8px">
+            <input
+              type="search"
+              id="q1"
+              placeholder="🔍 Cari NRP, nama, pangkat, atau keterangan…"
+              autocomplete="off"
+              style="flex: 3; min-width: 200px"
+            /><select id="fs">
+              <option value="">Semua status</option>
+              <option>Hadir</option>
+              <option>Izin</option>
+              <option>Sakit</option>
+              <option>Dinas Luar</option>
+              <option>Cuti</option>
+              <option value="Belum">Belum absen</option>
+            </select>
+          </div>
           <div class="sum" id="asum"></div>
           <div class="tw">
             <table>
@@ -150,12 +180,14 @@
                   <th>Masuk</th>
                   <th>Pulang</th>
                   <th>Ket.</th>
+                  <th>Dok.</th>
                   <th>Lokasi</th>
                 </tr>
               </thead>
               <tbody id="atb"></tbody>
             </table>
           </div>
+          <div class="pg" id="pg1"></div>
         </div>
         <div class="card">
           <h2>Tambah Personel</h2>
@@ -175,9 +207,9 @@
             <h3>Impor dari Excel</h3>
             <p class="note">
               Unggah file .xlsx, .xls, atau .csv dengan kolom:
-              <b>NRP, Nama, Pangkat, Unit</b>. Baris pertama adalah judul
-              kolom. Format kolom NRP sebagai <b>Teks</b> agar angka 0 di depan
-              tidak hilang.
+              <b>NRP, Nama, Pangkat, Unit</b>. Baris pertama adalah judul kolom.
+              Format kolom NRP sebagai <b>Teks</b> agar angka 0 di depan tidak
+              hilang.
             </p>
             <div class="row">
               <button class="btn g" id="tpl">⬇ Unduh Template Excel</button>
@@ -191,6 +223,13 @@
         </div>
         <div class="card">
           <h2>Daftar Personel <span class="note" id="cnt"></span></h2>
+          <input
+            type="search"
+            id="q2"
+            placeholder="🔍 Cari NRP, nama, pangkat, atau unit…"
+            autocomplete="off"
+            style="margin-bottom: 10px"
+          />
           <div class="tw">
             <table>
               <thead>
@@ -204,6 +243,7 @@
               <tbody id="tp"></tbody>
             </table>
           </div>
+          <div class="pg" id="pg2"></div>
         </div>
       </section>
     </main>

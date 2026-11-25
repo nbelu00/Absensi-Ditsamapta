@@ -10,6 +10,23 @@ const STAT = ["Hadir", "Izin", "Sakit", "Dinas Luar", "Cuti"],
     "Dinas Luar": "🚔 Dinas Luar",
     Cuti: "🏖️ Cuti",
   };
+/* Dokumen pendukung & penguncian keterangan */
+const DOK_ST = ["Sakit", "Dinas Luar", "Cuti"], // status yang boleh melampirkan dokumen
+  DOK_WAJIB = false, // true = dokumen wajib untuk status di atas
+  BUCKET = "dokumen-absensi",
+  MAX_MB = 5,
+  DOK_LBL = {
+    Sakit: "surat keterangan sakit",
+    "Dinas Luar": "surat perintah / surat tugas dinas luar",
+    Cuti: "surat izin cuti",
+  },
+  MIME = {
+    pdf: "application/pdf",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    webp: "image/webp",
+  };
 const TZ = "Asia/Makassar",
   $ = (i) => document.getElementById(i);
 const esc = (s) =>
@@ -50,7 +67,10 @@ let me = null,
   tab = "me",
   session = null,
   P = [],
-  busy = false;
+  busy = false,
+  info = null, // info keterangan hari ini dari server (sisa waktu, dokumen)
+  lockAt = 0, // waktu (ms) keterangan dipatenkan
+  lastH = [];
 try {
   me = JSON.parse(sessionStorage.getItem("sam_me") || "null");
 } catch (e) {}
@@ -90,14 +110,17 @@ function getLoc() {
 /* ---------- Absen Saya ---------- */
 async function loadMe() {
   try {
-    const [t, h] = await Promise.all([
+    const [t, h, k] = await Promise.all([
       rpc("status_hari_ini", { p_nrp: me.nrp }),
       rpc("riwayat_saya", {
         p_nrp: me.nrp,
         p_bulan: $("bln").value || today().slice(0, 7),
       }),
+      rpc("info_keterangan", { p_nrp: me.nrp }).catch(() => []),
     ]);
     tdy = t[0] || null;
+    info = k && k[0] ? k[0] : null;
+    lockAt = info && !info.terkunci ? Date.now() + info.sisa_detik * 1000 : 0;
     if (tdy && tdy.status !== "Hadir") {
       pick = tdy.status;
       $("ket").value = tdy.ket || "";
@@ -114,11 +137,42 @@ function drawOpts() {
         `<button data-s="${s}" class="${s === pick ? "on" : ""}">${s}</button>`,
     )
     .join("");
+  drawDok();
 }
+function drawDok() {
+  const need = DOK_ST.includes(pick),
+    cur = need && tdy && tdy.status === pick && info && info.dok_nama;
+  $("dk").classList.toggle("hide", !need);
+  $("dok-lbl").textContent = need
+    ? "📎 Dokumen pendukung: " +
+      DOK_LBL[pick] +
+      " (PDF/JPG/PNG, maks " +
+      MAX_MB +
+      " MB)" +
+      (DOK_WAJIB ? " — wajib" : " — opsional")
+    : "";
+  $("dok-cur").textContent = cur
+    ? "Dokumen tersimpan: " + info.dok_nama + " (pilih file baru untuk mengganti)"
+    : "";
+}
+const mmss = (s) =>
+  String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+function lockTick() {
+  if (!lockAt) return;
+  const s = Math.ceil((lockAt - Date.now()) / 1000);
+  if (s <= 0) {
+    lockAt = 0;
+    if (info) info.terkunci = true;
+    renderMe(lastH);
+  } else if ($("cd")) $("cd").textContent = mmss(s);
+}
+setInterval(lockTick, 1000);
 function renderMe(h) {
+  lastH = h;
   const r = tdy,
     na = !!r && r.status !== "Hadir",
-    hd = !!r && r.status === "Hadir";
+    hd = !!r && r.status === "Hadir",
+    locked = na && !!info && !!info.terkunci;
   $("av").textContent = me.nama[0];
   $("m-nama").textContent = (me.pangkat ? me.pangkat + " " : "") + me.nama;
   $("m-sub").textContent = "NRP " + me.nrp + " · " + (me.unit || "-");
@@ -127,16 +181,31 @@ function renderMe(h) {
   $("m-out").textContent = r && r.pulang ? T(r.pulang) : "--:--";
   const g = $("go"),
     q = $("plg");
-  g.disabled = q.disabled = na;
+  g.disabled = na;
+  q.disabled = false;
   g.className = "btn w" + (na ? " g" : "");
-  q.className = "btn w" + (na ? " g" : "");
+  q.className = "btn w";
   g.textContent = na ? SI[r.status] : "✅ Absen Masuk";
-  q.textContent = na ? SI[r.status] : "🏠 Absen Pulang";
+  q.textContent = "🏠 Absen Pulang";
   g.classList.toggle("hide", hd);
-  q.classList.toggle("hide", !(na || (hd && !r.pulang)));
-  $("dt").classList.toggle("hide", hd);
+  // saat Izin/Sakit/Dinas Luar/Cuti hanya satu tombol status yang tampil
+  q.classList.toggle("hide", !(hd && !r.pulang));
+  $("dt").classList.toggle("hide", hd || locked);
   $("bk").classList.toggle("hide", !na);
   $("go2").textContent = na ? "Perbarui Keterangan" : "Kirim Keterangan";
+  const L = $("m-lock");
+  if (na) {
+    L.innerHTML =
+      (tdy.ket ? "Keterangan: <b>" + esc(tdy.ket) + "</b><br>" : "") +
+      (info && info.dok_nama ? "📎 Dokumen: <b>" + esc(info.dok_nama) + "</b><br>" : "") +
+      (locked
+        ? "🔒 Keterangan sudah dipatenkan dan tidak dapat diubah."
+        : lockAt
+          ? "⏳ Dapat diubah/dibatalkan dalam <b id=\"cd\">" +
+            mmss(Math.max(0, Math.ceil((lockAt - Date.now()) / 1000))) +
+            "</b>, setelah itu dipatenkan."
+          : "");
+  } else L.innerHTML = "";
   drawOpts();
   const c = {};
   h.forEach((x) => (c[x.status] = (c[x.status] || 0) + 1));
@@ -153,18 +222,66 @@ function renderMe(h) {
       .join("") ||
     '<tr><td colspan="5" class="note">Belum ada catatan bulan ini.</td></tr>';
 }
+const shrink = async (f) => {
+  try {
+    const bm = await createImageBitmap(f),
+      s = Math.min(1, 1600 / Math.max(bm.width, bm.height)),
+      c = document.createElement("canvas");
+    c.width = Math.round(bm.width * s);
+    c.height = Math.round(bm.height * s);
+    c.getContext("2d").drawImage(bm, 0, 0, c.width, c.height);
+    const b = await new Promise((r) => c.toBlob(r, "image/jpeg", 0.82));
+    return b && b.size < f.size ? b : f;
+  } catch (e) {
+    return f;
+  }
+};
+async function uploadDok(f) {
+  const ext = (f.name.split(".").pop() || "").toLowerCase(),
+    mime = MIME[ext];
+  if (!mime) throw new Error("Format dokumen harus PDF, JPG, PNG, atau WEBP");
+  const b = mime.startsWith("image/") ? await shrink(f) : f,
+    fin = b === f ? mime : "image/jpeg",
+    e2 = { "application/pdf": "pdf", "image/png": "png", "image/webp": "webp" }[fin] || "jpg";
+  if (b.size > MAX_MB * 1048576)
+    throw new Error("Ukuran dokumen maksimal " + MAX_MB + " MB");
+  const path =
+    today() + "/" + String(me.nrp).replace(/[^\w-]/g, "_") + "-" + Date.now() + "." + e2;
+  const { error } = await sb.storage
+    .from(BUCKET)
+    .upload(path, b, { contentType: fin, upsert: false });
+  if (error) throw new Error("Gagal mengunggah dokumen: " + error.message);
+  return { path, nama: f.name.slice(0, 120) };
+}
 async function absen(st) {
   if (busy) return;
   busy = true;
-  toast("Mengambil lokasi…");
   try {
+    const nonH = st !== "Hadir",
+      needDok = nonH && DOK_ST.includes(st),
+      f = needDok ? $("dok").files[0] : null;
+    if (needDok && DOK_WAJIB && !f && !(info && info.dok_nama && tdy && tdy.status === st))
+      throw new Error("Lampirkan dokumen pendukung terlebih dahulu");
+    let up = null;
+    if (f) {
+      toast("Mengunggah dokumen…");
+      up = await uploadDok(f);
+    }
+    toast("Mengambil lokasi…");
     const l = await getLoc();
     await rpc("absen_masuk", {
       p_nrp: me.nrp,
       p_status: st,
-      p_ket: st === "Hadir" ? "" : $("ket").value.trim(),
+      p_ket: nonH ? $("ket").value.trim() : "",
       p_lok: l,
     });
+    if (nonH) {
+      if (up)
+        await rpc("lampirkan_dokumen", { p_nrp: me.nrp, p_path: up.path, p_nama: up.nama });
+      else if (!needDok && info && info.dok_nama)
+        await rpc("lampirkan_dokumen", { p_nrp: me.nrp, p_path: null, p_nama: null });
+    }
+    $("dok").value = "";
     toast("Absen tercatat: " + st + (l ? " 📍" : " (lokasi tidak tersedia)"));
     await loadMe();
   } catch (e) {
@@ -232,6 +349,8 @@ $("l-nrp").addEventListener("keydown", (e) => {
 $("out").onclick = () => {
   me = null;
   tdy = null;
+  info = null;
+  lockAt = 0;
   try {
     sessionStorage.removeItem("sam_me");
   } catch (e) {}
@@ -252,6 +371,118 @@ const lok = (l) =>
   l
     ? `<a href="https://www.google.com/maps?q=${Number(l.lat)},${Number(l.lon)}" target="_blank" rel="noopener">`
     : "";
+/* ---- Pencarian & paginasi (Admin) ---- */
+const R = { pg: 1, sz: 10 }, // Rekap Harian
+  D = { pg: 1, sz: 10 }; // Daftar Personel
+const match = (q, txt) => {
+  const h = txt.toLowerCase();
+  return q
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((w) => h.includes(w));
+};
+function pager(id, S, total) {
+  const pages = S.sz ? Math.max(1, Math.ceil(total / S.sz)) : 1;
+  S.pg = Math.min(Math.max(1, S.pg), pages);
+  const from = total ? (S.sz ? (S.pg - 1) * S.sz + 1 : 1) : 0,
+    to = S.sz ? Math.min(total, S.pg * S.sz) : total;
+  $(id).innerHTML =
+    `<small>${total ? from + "–" + to : 0} dari ${total}</small><span class="sp"></span>` +
+    `<select data-z title="Baris per halaman">${[10, 25, 50, 0]
+      .map(
+        (n) =>
+          `<option value="${n}"${n === S.sz ? " selected" : ""}>${n ? n + " / hal" : "Semua"}</option>`,
+      )
+      .join("")}</select>` +
+    `<button class="btn g s" data-p="-1"${S.pg <= 1 ? " disabled" : ""}>‹ Prev</button>` +
+    `<small>${S.pg}/${pages}</small>` +
+    `<button class="btn g s" data-p="1"${S.pg >= pages ? " disabled" : ""}>Next ›</button>`;
+  return S.sz ? [(S.pg - 1) * S.sz, S.pg * S.sz] : [0, total];
+}
+function bindPager(id, S, redraw) {
+  $(id).onclick = (e) => {
+    const b = e.target.closest("button[data-p]");
+    if (!b || b.disabled) return;
+    S.pg += +b.dataset.p;
+    redraw();
+  };
+  $(id).onchange = (e) => {
+    if (e.target.dataset.z === undefined) return;
+    S.sz = +e.target.value;
+    S.pg = 1;
+    redraw();
+  };
+}
+function drawRekap() {
+  const A = window.AA || {},
+    unit = $("fu").value,
+    q = $("q1").value.trim(),
+    fs = $("fs").value,
+    L = unit ? P.filter((p) => p.unit === unit) : P,
+    c = { Hadir: 0, Izin: 0, Sakit: 0, "Dinas Luar": 0, Cuti: 0, Belum: 0 };
+  L.forEach((p) => c[A[p.nrp] ? A[p.nrp].status : "Belum"]++);
+  $("asum").innerHTML = Object.keys(c)
+    .map((k) => `<div><b class="${cls(k)}">${c[k]}</b><small>${k}</small></div>`)
+    .join("");
+  const F = L.filter((p) => {
+    const r = A[p.nrp],
+      s = r ? r.status : "Belum";
+    if (fs && s !== fs) return false;
+    return (
+      !q ||
+      match(
+        q,
+        [p.nrp, p.pangkat, p.nama, p.unit, s === "Belum" ? "belum absen" : s, r && r.ket].join(" "),
+      )
+    );
+  });
+  const [i, j] = pager("pg1", R, F.length);
+  $("atb").innerHTML =
+    F.slice(i, j)
+      .map((p) => {
+        const r = A[p.nrp],
+          s = r ? r.status : "Belum";
+        return `<tr><td>${esc(p.nrp)}</td><td>${esc(p.pangkat)} ${esc(p.nama)}</td><td>${esc(p.unit)}</td><td>${tag(s)}</td><td>${T(r && r.masuk)}</td><td>${T(r && r.pulang)}</td><td>${esc((r && r.ket) || "")}</td><td>${r && r.dok_path ? `<a href="#" data-dok="${esc(r.dok_path)}" title="${esc(r.dok_nama || "")}">📎 Lihat</a>` : "-"}</td><td>${r && r.lok_in ? lok(r.lok_in) + "📍Masuk</a> " : ""}${r && r.lok_out ? lok(r.lok_out) + "📍Pulang</a>" : ""}${r && (r.lok_in || r.lok_out) ? "" : "-"}</td></tr>`;
+      })
+      .join("") ||
+    `<tr><td colspan="9" class="note">${P.length ? "Tidak ada personel yang cocok." : "Belum ada personel."}</td></tr>`;
+}
+function drawDaftar() {
+  const q = $("q2").value.trim(),
+    F = q ? P.filter((p) => match(q, [p.nrp, p.pangkat, p.nama, p.unit].join(" "))) : P;
+  $("cnt").textContent = q ? `(${F.length} dari ${P.length})` : `(${P.length})`;
+  const [i, j] = pager("pg2", D, F.length);
+  $("tp").innerHTML =
+    F.slice(i, j)
+      .map(
+        (p) =>
+          `<tr><td>${esc(p.nrp)}</td><td>${esc(p.pangkat)} ${esc(p.nama)}</td><td>${esc(p.unit)}</td><td><button class="btn d s" data-x="${esc(p.nrp)}">Hapus</button></td></tr>`,
+      )
+      .join("") ||
+    `<tr><td colspan="4" class="note">${P.length ? "Tidak ada personel yang cocok." : "Belum ada personel."}</td></tr>`;
+}
+bindPager("pg1", R, drawRekap);
+bindPager("pg2", D, drawDaftar);
+let t1, t2;
+$("q1").oninput = () => {
+  clearTimeout(t1);
+  t1 = setTimeout(() => {
+    R.pg = 1;
+    drawRekap();
+  }, 150);
+};
+$("q2").oninput = () => {
+  clearTimeout(t2);
+  t2 = setTimeout(() => {
+    D.pg = 1;
+    drawDaftar();
+  }, 150);
+};
+$("fs").onchange = () => {
+  R.pg = 1;
+  drawRekap();
+};
 async function loadAdm() {
   if (!session) return;
   const d = $("tg").value || today(),
@@ -275,30 +506,24 @@ async function loadAdm() {
     us
       .map((u) => `<option${u === cur ? " selected" : ""}>${esc(u)}</option>`)
       .join("");
-  const L = cur ? P.filter((p) => p.unit === cur) : P,
-    c = { Hadir: 0, Izin: 0, Sakit: 0, "Dinas Luar": 0, Cuti: 0, Belum: 0 };
-  $("atb").innerHTML =
-    L.map((p) => {
-      const r = A[p.nrp],
-        s = r ? r.status : "Belum";
-      c[s]++;
-      return `<tr><td>${esc(p.nrp)}</td><td>${esc(p.pangkat)} ${esc(p.nama)}</td><td>${esc(p.unit)}</td><td>${tag(s)}</td><td>${T(r && r.masuk)}</td><td>${T(r && r.pulang)}</td><td>${esc((r && r.ket) || "")}</td><td>${r && r.lok_in ? lok(r.lok_in) + "📍Masuk</a> " : ""}${r && r.lok_out ? lok(r.lok_out) + "📍Pulang</a>" : ""}${r && (r.lok_in || r.lok_out) ? "" : "-"}</td></tr>`;
-    }).join("") ||
-    '<tr><td colspan="8" class="note">Belum ada personel.</td></tr>';
-  $("asum").innerHTML = Object.keys(c)
-    .map(
-      (k) =>
-        `<div><b class="${cls(k)}">${c[k]}</b><small>${k === "Belum" ? "Belum" : k}</small></div>`,
-    )
-    .join("");
-  $("cnt").textContent = "(" + P.length + ")";
-  $("tp").innerHTML =
-    P.map(
-      (p) =>
-        `<tr><td>${esc(p.nrp)}</td><td>${esc(p.nama)}</td><td>${esc(p.unit)}</td><td><button class="btn d s" data-x="${esc(p.nrp)}">Hapus</button></td></tr>`,
-    ).join("") ||
-    '<tr><td colspan="4" class="note">Belum ada personel.</td></tr>';
+  drawRekap();
+  drawDaftar();
 }
+$("atb").onclick = async (e) => {
+  const a = e.target.closest("a[data-dok]");
+  if (!a) return;
+  e.preventDefault();
+  const w = window.open("", "_blank");
+  const { data, error } = await sb.storage
+    .from(BUCKET)
+    .createSignedUrl(a.dataset.dok, 300);
+  if (error || !data) {
+    if (w) w.close();
+    return toast("Gagal membuka dokumen: " + (error ? error.message : ""));
+  }
+  if (w) w.location.href = data.signedUrl;
+  else location.href = data.signedUrl;
+};
 $("tp").onclick = async (e) => {
   const n = e.target.dataset.x;
   if (!n || !confirm("Hapus personel " + n + " beserta riwayat absennya?"))
@@ -468,6 +693,7 @@ $("csv").onclick = () => {
   a.download = "absensi-samapta-" + d + ".csv";
   a.click();
 };
+$("fu").addEventListener("change", () => (R.pg = 1));
 $("tg").onchange = $("fu").onchange = $("rf").onclick = loadAdm;
 document.querySelectorAll("nav button").forEach(
   (b) =>
